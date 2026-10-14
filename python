@@ -1,0 +1,217 @@
+import os, textwrap
+
+base = "/mnt/data/quantum_quest"
+os.makedirs(base, exist_ok=True)
+
+game_code = r'''"""
+QUANTUM QUEST: Learn Quantum Computing
+A beginner-friendly interactive terminal game.
+Python 3.10+ recommended. No extra libraries required.
+
+Run: python quantum_quest.py
+"""
+
+import math
+import random
+
+def pause():
+    input("\nPress Enter to continue...")
+
+def line():
+    print("\n" + "=" * 58)
+
+def intro():
+    line()
+    print("⚛️  QUANTUM QUEST")
+    print("Learn quantum computing by solving missions!")
+    print("=" * 58)
+    print("You'll explore qubits, quantum gates, measurement, and entanglement.")
+    print("This is a learning model: it demonstrates core ideas, not a full simulator.")
+    pause()
+
+def quiz(question, options, correct, explanation):
+    print("\n" + question)
+    for i, option in enumerate(options, 1):
+        print(f"  {i}. {option}")
+    while True:
+        answer = input("Choose 1, 2, or 3: ").strip()
+        if answer in {"1", "2", "3"}:
+            break
+        print("Please type 1, 2, or 3.")
+    if int(answer) == correct:
+        print("✅ Correct!")
+        score = 10
+    else:
+        print(f"Not quite. The answer is {correct}.")
+        score = 0
+    print(explanation)
+    return score
+
+def level1():
+    line()
+    print("LEVEL 1 — THE QUBIT")
+    print("A classical bit is either 0 or 1. A qubit can be in a superposition.")
+    print("For this game, |0> and |1> are the two measurement outcomes.")
+    score = quiz(
+        "Which statement best describes a qubit?",
+        [
+            "It can only ever be 0",
+            "It can be in a quantum superposition of states",
+            "It is always both a measured 0 and a measured 1"
+        ],
+        2,
+        "A superposition is a quantum state that can give different outcomes "
+        "when measured. It does not mean a measurement simply reveals two "
+        "ordinary classical values at once."
+    )
+    return score
+
+def level2():
+    line()
+    print("LEVEL 2 — QUANTUM GATES")
+    print("We'll track a simple qubit using probabilities for measurement.")
+    print("Start in |0>: probability of 0 = 100%, probability of 1 = 0%.")
+    state = "0"
+    while True:
+        print(f"\nCurrent teaching state: |{state}>")
+        print("1. Apply X gate (flip 0 ↔ 1)")
+        print("2. Apply Hadamard gate (make an equal superposition from |0> or |1>)")
+        print("3. Measure the qubit")
+        print("4. Finish level")
+        choice = input("Action: ").strip()
+        if choice == "1":
+            if state in ("0", "1"):
+                state = "1" if state == "0" else "0"
+                print(f"X gate applied. State is now |{state}>.")
+            else:
+                print("In this simplified mode, use H first to create a superposition.")
+        elif choice == "2":
+            state = "plus" if state != "plus" else "0"
+            if state == "plus":
+                print("Hadamard applied: |+> = (|0> + |1>) / √2.")
+                print("An ideal measurement now gives 0 or 1 with 50% probability each.")
+            else:
+                print("Reset to |0> for another experiment.")
+        elif choice == "3":
+            if state == "plus":
+                result = random.choice(["0", "1"])
+                print(f"Measurement result: {result}")
+                print("One measurement gives one outcome; repeat to see the statistics.")
+            else:
+                print(f"Measurement result: {state} (in this simplified model).")
+        elif choice == "4":
+            return 10
+        else:
+            print("Choose 1, 2, 3, or 4.")
+
+def level3():
+    line()
+    print("LEVEL 3 — MEASUREMENT CHALLENGE")
+    print("A qubit is prepared in |+> = (|0> + |1>) / √2.")
+    print("Each ideal measurement in the computational basis has a 50% chance of 0 or 1.")
+    rounds = 10
+    zeros = 0
+    for _ in range(rounds):
+        result = random.choice([0, 1])
+        zeros += result == 0
+    ones = rounds - zeros
+    print(f"\nYou ran {rounds} simulated measurements:")
+    print(f"0 appeared {zeros} times; 1 appeared {ones} times.")
+    print("Small samples can be uneven. Over many repetitions, the frequencies tend toward 50/50.")
+    return quiz(
+        "If you measure an ideal |+> state many times, what outcome probabilities do you expect?",
+        ["100% zero", "50% zero and 50% one", "Always alternating 0, 1, 0, 1"],
+        2,
+        "Measurement is probabilistic. The results do not have to alternate, and a single run can be 0 or 1."
+    )
+
+def level4():
+    line()
+    print("LEVEL 4 — ENTANGLEMENT")
+    print("A famous two-qubit entangled state is the Bell state:")
+    print("|Φ+> = (|00> + |11>) / √2")
+    print("When measured in the same basis, its two results are perfectly correlated.")
+    print("That does NOT let you send messages faster than light.")
+    score = quiz(
+        "For this Bell state, what pairs can appear when both qubits are measured in the computational basis?",
+        ["Only 00 or 11", "Only 01 or 10", "All four pairs are equally likely"],
+        1,
+        "The state has equal amplitudes for |00> and |11>, so those are the only outcomes in this measurement basis."
+    )
+    return score
+
+def main():
+    intro()
+    score = 0
+    levels = [
+        ("Qubit Basics", level1),
+        ("Quantum Gates Lab", level2),
+        ("Measurement Challenge", level3),
+        ("Entanglement Lab", level4),
+    ]
+    for name, fn in levels:
+        print(f"\nNext mission: {name}")
+        score += fn()
+        print(f"Mission complete! Total XP: {score}")
+        pause()
+    line()
+    print("🏆 QUANTUM QUEST COMPLETE!")
+    print(f"Final XP: {score}/40")
+    if score >= 30:
+        print("Excellent work, quantum explorer. Try building your own gate simulator next!")
+    else:
+        print("Nice start! Replay the missions and experiment with the explanations.")
+    print("\nNext upgrade ideas:")
+    print("- Add a Bloch sphere visualization")
+    print("- Build a circuit editor")
+    print("- Compare ideal results with noisy qubits")
+    print("- Use Qiskit to run circuits on real quantum hardware (when ready)")
+    print("\nKeep asking questions. Quantum computing is learned one experiment at a time.")
+
+if __name__ == "__main__":
+    main()
+'''
+path = os.path.join(base, "quantum_quest.py")
+with open(path, "w", encoding="utf-8") as f:
+    f.write(game_code)
+
+readme = """# Quantum Quest
+
+A beginner-friendly interactive terminal game for learning quantum computing.
+
+## Requirements
+- Python 3.10 or newer
+- No extra packages required
+
+## Run it
+Open a terminal in this folder and run:
+
+```bash
+python quantum_quest.py
+```
+
+On some Windows systems, use:
+
+```bash
+py quantum_quest.py
+```
+
+## What you'll learn
+1. Qubits and superposition
+2. X and Hadamard gates (simplified teaching model)
+3. Measurement probabilities
+4. A Bell state and entanglement
+
+This game is educational and simplified; it is not a full quantum circuit simulator.
+"""
+with open(os.path.join(base, "README.txt"), "w", encoding="utf-8") as f:
+    f.write(readme)
+
+import zipfile
+zip_path = "/mnt/data/quantum_quest_game.zip"
+with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as z:
+    z.write(path, arcname="quantum_quest/quantum_quest.py")
+    z.write(os.path.join(base, "README.txt"), arcname="quantum_quest/README.txt")
+
+print(f"Created: {path}")
+print(f"Created: {zip_path}")
